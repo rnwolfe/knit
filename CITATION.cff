@@ -1,0 +1,15 @@
+cff-version: 1.2.0
+message: "If you use knit, please cite it as below."
+title: "knit: an agent-friendly CLI for Instagram's Threads"
+authors:
+  - family-names: Wolfe
+    given-names: Ryan
+repository-code: "https://github.com/rnwolfe/knit"
+url: "https://knitcli.sh"
+license: MIT
+keywords:
+  - cli
+  - threads
+  - meta
+  - ai-agents
+  - llm-tools

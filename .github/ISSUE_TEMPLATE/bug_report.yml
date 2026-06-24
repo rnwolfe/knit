@@ -1,0 +1,36 @@
+name: Bug report
+description: Something isn't working as documented.
+labels: [bug]
+body:
+  - type: input
+    id: version
+    attributes:
+      label: knit version
+      description: Output of `knit version`.
+      placeholder: v0.1.0
+    validations: { required: true }
+  - type: input
+    id: os
+    attributes:
+      label: OS / arch
+      placeholder: macOS 15 arm64 / Ubuntu 24.04 amd64
+    validations: { required: true }
+  - type: textarea
+    id: command
+    attributes:
+      label: Command run
+      description: The exact command (redact any token).
+      render: shell
+    validations: { required: true }
+  - type: textarea
+    id: expected
+    attributes:
+      label: Expected vs actual
+    validations: { required: true }
+  - type: textarea
+    id: logs
+    attributes:
+      label: Output / logs
+      description: Relevant --json output or stderr. REDACT any access token.
+      render: shell
+    validations: { required: false }

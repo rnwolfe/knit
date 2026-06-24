@@ -31,6 +31,8 @@ jobs:
           # PAT needed because the Homebrew tap lives in a separate repo.
           GORELEASER_TOKEN: ${{ secrets.GORELEASER_TOKEN }}
 
+      # attest-build-provenance fails on private user-owned repos; skip there.
       - uses: actions/attest-build-provenance@v3
+        if: ${{ !github.event.repository.private }}
         with:
           subject-path: "dist/*.tar.gz, dist/*.zip, dist/checksums.txt"
