@@ -17,6 +17,9 @@ importers:
       '@fontsource-variable/space-grotesk':
         specifier: ^5.2.10
         version: 5.2.10
+      '@fontsource/pacifico':
+        specifier: ^5.2.7
+        version: 5.2.7
       astro:
         specifier: ^7.0.2
         version: 7.0.2(@astrojs/markdown-remark@7.2.0)(@emnapi/core@1.11.1)(@emnapi/runtime@1.11.1)(@types/node@24.13.2)
@@ -404,6 +407,9 @@ packages:
 
   '@fontsource-variable/space-grotesk@5.2.10':
     resolution: {integrity: sha512-yJQO/o35/hAP3CFnpdFTwQku2yzJOae2HIpBmqkOVoxhhXJaQP3g+b6Jrz7u+eI7A5ZdCIf88uMWpBJdFiGr5w==}
+
+  '@fontsource/pacifico@5.2.7':
+    resolution: {integrity: sha512-L+YiZn3Lb8rVN15zcLlti62doVxQeFpS+dJmulKkFrUo3dZIAxZLHwXoKaaHm+VVcOTrT/mmKCZqGOIWVmFV2w==}
 
   '@img/colour@1.1.0':
     resolution: {integrity: sha512-Td76q7j57o/tLVdgS746cYARfSyxk8iEfRxewL9h4OMzYhbW4TAcppl0mT4eyqXddh6L/jwoM75mo7ixa/pCeQ==}
@@ -2412,6 +2418,8 @@ snapshots:
   '@fontsource-variable/jetbrains-mono@5.2.8': {}
 
   '@fontsource-variable/space-grotesk@5.2.10': {}
+
+  '@fontsource/pacifico@5.2.7': {}
 
   '@img/colour@1.1.0': {}
 

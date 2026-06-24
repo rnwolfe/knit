@@ -11,40 +11,34 @@
 <meta property="og:description" content="Read-only by default. Posting gated in the binary. Prompt-injection-fenced. Built on the official Threads API." />
 <meta property="og:url" content="https://knitcli.sh/" />
 <meta name="twitter:card" content="summary_large_image" />
-<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='7' fill='%230B0B0F'/%3E%3Cpath d='M7 22 L13 10 L19 22 L25 10' fill='none' stroke='%23FF5A36' stroke-width='3' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E" />
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='7' fill='%230B0B0F'/%3E%3Cpath d='M9 20 C 9 11 23 11 23 18 C 23 24 15 24 16 16 C 17 9 25 10 25 10' fill='none' stroke='%23FF5A36' stroke-width='3' stroke-linecap='round'/%3E%3C/svg%3E" />
 <link rel="preconnect" href="https://fonts.googleapis.com" />
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;700&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet" />
+<link href="https://fonts.googleapis.com/css2?family=Pacifico&family=Space+Grotesk:wght@400;500;700&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet" />
 <style>
   :root{
     --ink:#0B0B0F; --ink-2:#121219; --paper:#F4EFE6; --paper-dim:#A7A39A;
     --thread:#FF5A36; --thread-2:#ffd9cd; --line:#26262f; --muted:#6b6b7a;
     --max:1140px;
     --grot:'Space Grotesk',system-ui,sans-serif; --mono:'JetBrains Mono',ui-monospace,monospace;
+    --script:'Pacifico',cursive;
   }
   *{box-sizing:border-box}
   html{scroll-behavior:smooth}
   body{
     margin:0; background:var(--ink); color:var(--paper);
     font-family:var(--grot); line-height:1.5; -webkit-font-smoothing:antialiased;
-    /* faint knit-stitch texture: rows of chevron "V" stitches */
-    background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='44' height='26' viewBox='0 0 44 26'%3E%3Cpath d='M0 20 L11 6 L22 20 L33 6 L44 20' fill='none' stroke='%23ffffff' stroke-opacity='0.022' stroke-width='2'/%3E%3C/svg%3E");
+    /* faint texture: tiny interlocking thread loops */
+    background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='48' height='24' viewBox='0 0 48 24'%3E%3Cpath d='M0 12 q 6 -9 12 0 q 6 9 12 0 q 6 -9 12 0 q 6 9 12 0' fill='none' stroke='%23ffffff' stroke-opacity='0.022' stroke-width='1.5'/%3E%3C/svg%3E");
   }
   a{color:inherit}
   .wrap{max-width:var(--max);margin:0 auto;padding:0 24px}
-
-  /* ── running-stitch spine that sews the page together ───────────── */
-  .spine{position:fixed;left:max(20px,calc((100vw - var(--max))/2 - 14px));top:0;bottom:0;width:2px;z-index:0;pointer-events:none}
-  .spine svg{height:100%;width:14px;overflow:visible}
-  .spine path{stroke:var(--thread);stroke-width:2;stroke-dasharray:9 9;fill:none;
-    stroke-dashoffset:1400;animation:sew 3.2s ease-out .2s forwards}
   @keyframes sew{to{stroke-dashoffset:0}}
 
   header.nav{position:sticky;top:0;z-index:10;backdrop-filter:blur(8px);
     background:color-mix(in srgb,var(--ink) 78%,transparent);border-bottom:1px solid var(--line)}
   .nav .wrap{display:flex;align-items:center;gap:18px;height:62px}
-  .brand{display:flex;align-items:center;gap:10px;font-weight:700;letter-spacing:-.02em;font-size:19px}
-  .brand .mk{width:26px;height:26px}
+  .brand{display:flex;align-items:center;font-family:var(--script);color:var(--thread);font-size:26px;line-height:1}
   .nav nav{margin-left:auto;display:flex;gap:22px;align-items:center;font-family:var(--mono);font-size:13.5px;color:var(--paper-dim)}
   .nav nav a:hover{color:var(--paper)}
   .ghost{border:1px solid var(--line);padding:8px 14px;border-radius:8px;color:var(--paper)!important;text-decoration:none}
@@ -53,11 +47,10 @@
   /* ── hero ───────────────────────────────────────────────────────── */
   .hero{position:relative;z-index:1;padding:84px 0 64px;
     display:grid;grid-template-columns:1.05fr .95fr;gap:54px;align-items:center}
+  .hero::before{display:none} /* no divider directly under the nav */
   .eyebrow{font-family:var(--mono);font-size:13px;color:var(--thread);letter-spacing:.06em;text-transform:uppercase;margin-bottom:18px}
-  h1.word{font-size:clamp(76px,13vw,168px);line-height:.84;letter-spacing:-.045em;font-weight:700;margin:0}
-  .stitchline{display:block;width:min(320px,70%);height:18px;margin:10px 0 26px}
-  .stitchline path{stroke:var(--thread);stroke-width:3.4;stroke-linecap:round;fill:none;
-    stroke-dasharray:11 12;stroke-dashoffset:520;animation:sew 2.4s ease-out .5s forwards}
+  h1.word{font-family:var(--script);color:var(--thread);font-size:clamp(92px,15vw,184px);
+    line-height:1;font-weight:400;margin:0 0 18px;padding-top:8px}
   .lede{font-size:clamp(19px,2.3vw,25px);max-width:30ch;color:var(--paper)}
   .lede b{color:var(--thread)}
   .sub{margin-top:14px;color:var(--paper-dim);max-width:42ch;font-size:16px}
@@ -93,15 +86,19 @@
   .term .body .fence{color:var(--thread-2);background:#ff5a3618;border-left:2px solid var(--thread);padding-left:8px;display:inline-block}
 
   /* ── sections ───────────────────────────────────────────────────── */
-  section{position:relative;z-index:1;padding:64px 0;border-top:1px solid var(--line)}
+  /* tiny thread-loop divider (kept; the big flowing spine is gone) */
+  section{position:relative;z-index:1;padding:64px 0;border-top:0}
+  section::before{content:"";position:absolute;top:0;left:0;width:128px;height:14px;opacity:.6;
+    background:repeat-x left center/64px 14px url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='64' height='14' viewBox='0 0 64 14'%3E%3Cpath d='M0 7 q 8 -9 16 0 q 8 9 16 0 q 8 -9 16 0 q 8 9 16 0' fill='none' stroke='%23FF5A36' stroke-width='1.8'/%3E%3C/svg%3E")}
   .kicker{font-family:var(--mono);font-size:12.5px;color:var(--thread);letter-spacing:.14em;text-transform:uppercase}
   h2{font-size:clamp(30px,4.4vw,46px);letter-spacing:-.03em;margin:.35em 0 .1em;line-height:1.02}
   .lead{color:var(--paper-dim);max-width:60ch;font-size:17px}
 
   .grid{display:grid;grid-template-columns:repeat(2,1fr);gap:18px;margin-top:34px}
   .card{position:relative;background:var(--ink-2);border:1px solid var(--line);border-radius:14px;padding:22px 22px 24px}
-  .card::before{content:"";position:absolute;top:14px;right:14px;width:22px;height:22px;
-    border-top:2px dashed var(--thread);border-right:2px dashed var(--thread);opacity:.6;border-radius:0 4px 0 0}
+  /* tiny thread-loop curl in the corner */
+  .card::before{content:"";position:absolute;top:12px;right:12px;width:26px;height:26px;opacity:.7;
+    background:no-repeat center/contain url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 30 30'%3E%3Cpath d='M5 24 C 5 13 26 13 26 21 C 26 27 17 27 18 19 C 19 12 28 13 28 7' fill='none' stroke='%23FF5A36' stroke-width='2' stroke-linecap='round'/%3E%3C/svg%3E")}
   .card h3{margin:.1em 0 .35em;font-size:19px;letter-spacing:-.01em;display:flex;gap:9px;align-items:center}
   .card h3 .dot{width:9px;height:9px;border-radius:50%;background:var(--thread);box-shadow:0 0 0 4px #ff5a3622}
   .card p{margin:0;color:var(--paper-dim);font-size:14.6px}
@@ -139,16 +136,9 @@
 </style>
 </head>
 <body>
-<div class="spine" aria-hidden="true">
-  <svg preserveAspectRatio="none" viewBox="0 0 14 1000"><path d="M7 0 V1000" /></svg>
-</div>
-
 <header class="nav">
   <div class="wrap">
-    <span class="brand">
-      <svg class="mk" viewBox="0 0 32 32" aria-hidden="true"><rect width="32" height="32" rx="7" fill="#121219"/><path d="M7 22 L13 10 L19 22 L25 10" fill="none" stroke="#FF5A36" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/></svg>
-      knit
-    </span>
+    <span class="brand">knit</span>
     <nav>
       <a href="#why">Why</a>
       <a href="#commands">Commands</a>
@@ -164,7 +154,6 @@
     <div>
       <div class="eyebrow">bird is for X · knit is for Threads</div>
       <h1 class="word">knit</h1>
-      <svg class="stitchline" viewBox="0 0 320 18" aria-hidden="true"><path d="M2 9 H318" /></svg>
       <p class="lede">Knit your agent into <b>Threads</b> — safely.</p>
       <p class="sub">An agent-friendly CLI for Instagram's Threads, built on the official API.
         Read-only by default, posting gated <i>in the binary</i>, prompt-injection-fenced,

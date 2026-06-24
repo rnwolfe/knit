@@ -38,7 +38,7 @@ export default defineConfig({
       tagline: "An agent-safe CLI for Instagram's Threads",
       description:
         "knit is an agent-friendly CLI for Instagram's Threads — read-only by default, posting gated in the binary, prompt-injection-fenced, machine-readable.",
-      logo: { src: './src/assets/knit.svg', replacesTitle: true },
+      // No logo image: the title text renders as the Pacifico wordmark (see custom.css).
       social: [{ icon: 'github', label: 'GitHub', href: 'https://github.com/rnwolfe/knit' }],
       editLink: { baseUrl: 'https://github.com/rnwolfe/knit/edit/main/docs/' },
       lastUpdated: true,

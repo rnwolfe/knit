@@ -1,6 +1,7 @@
-/* knit docs — "running stitch" theme: coral thread on ink, matching knitcli.sh */
+/* knit docs — coral theme matching knitcli.sh */
 @import '@fontsource-variable/space-grotesk';
 @import '@fontsource-variable/jetbrains-mono';
+@import '@fontsource/pacifico';
 
 :root {
   --sl-font: 'Space Grotesk Variable', system-ui, sans-serif;
@@ -25,7 +26,8 @@
   --sl-color-gray-6: #121219;
 }
 
-.site-title { letter-spacing: -0.03em; font-weight: 700; }
+/* brand wordmark in the header — Pacifico coral (matches the landing) */
+.site-title { font-family: 'Pacifico', cursive; color: var(--knit-thread); font-size: 1.5rem; }
 
 /* a coral running-stitch under page H1s — the signature motif */
 .sl-markdown-content h1 {
