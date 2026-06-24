@@ -1,0 +1,52 @@
+---
+title: knit
+description: An agent-safe CLI for Instagram's Threads — read-only by default, posting gated in the binary, prompt-injection-fenced, machine-readable.
+template: splash
+hero:
+  tagline: "<code>bird</code> is for X. <code>knit</code> is for Threads — and it's actually agent-safe."
+  image:
+    file: ../../assets/knit.svg
+  actions:
+    - text: Quickstart
+      link: /knit/start/quickstart/
+      icon: right-arrow
+      variant: primary
+    - text: GitHub
+      link: https://github.com/rnwolfe/knit
+      icon: external
+      variant: minimal
+owner: rnwolfe
+lastReviewed: 2026-06-23
+---
+
+import { Card, CardGrid } from '@astrojs/starlight/components';
+
+`knit` is an agent-friendly CLI for **Instagram's Threads**, built on the official API and to the
+agent-CLI contract: read-only by default, mutations gated *in the binary*, prompt-injection-fenced,
+and fully machine-readable.
+
+<CardGrid stagger>
+  <Card title="Read-only by default" icon="seti:lock">
+    Every mutation is blocked unless you pass `--allow-mutations` — a structured
+    `MUTATION_BLOCKED` (exit 12), not a prompt that deadlocks a headless agent.
+  </Card>
+  <Card title="Reviewed-artifact publishing" icon="approve-check">
+    `post create --dry-run` emits the exact plan + a hash; `--apply <hash>` publishes only that
+    plan. No blind `--yes` on an irreversible public post.
+  </Card>
+  <Card title="Prompt-injection-fenced" icon="warning">
+    Public post / reply / search / mention text and bios are wrapped as untrusted data, never
+    instructions — on by default in agent mode.
+  </Card>
+  <Card title="Machine-readable & official" icon="open-book">
+    `knit schema` dumps the command tree, exit codes, and live safety state. Built on the
+    official API → low breakage risk.
+  </Card>
+</CardGrid>
+
+## Where to next
+
+- **[Quickstart](/start/quickstart/)** — install and first success in under a minute.
+- **[Get a Threads token](/tutorials/get-a-token/)** — the one-time Meta app + tester setup.
+- **[Command reference](/reference/commands/)** — every command, flag, and output field.
+- **[Why agent-safe?](/explanation/agent-safety/)** — the design rationale.

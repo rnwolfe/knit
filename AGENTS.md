@@ -62,3 +62,31 @@ internal/version/             # ldflags version + ReadBuildInfo fallback
   currently publishes a single media item. Extend `api.Publish` + the command to build carousels.
 - `insights account --metric follower_demographics` requires a `breakdown` param — surface it
   as a flag when wiring richer demographics.
+
+## Documentation (keep it current — non-negotiable)
+
+Docs live in `docs/` — a standalone Astro Starlight site (Markdown/MDX under
+`docs/src/content/docs/`, organized by Diátaxis: tutorials / guides / reference / explanation).
+The build also emits `llms.txt` / `llms-full.txt` for AI agents. Landing page: `site/landing/`.
+
+- Dev: `cd docs && pnpm dev --host 0.0.0.0`
+- Build (regenerates `llms.txt`): `cd docs && pnpm build`
+
+**Docs are part of "done." A change is not complete until its docs are updated in the SAME commit/PR.**
+
+When you change any **public surface**, update the matching docs page in the same change:
+- A **command, flag, or output field** → `docs/src/content/docs/reference/commands.md` (and
+  regenerate the schema golden; the reference must match `knit schema`).
+- An **exit code** → `reference/exit-codes.md`.
+- **Auth / token** behavior → `tutorials/get-a-token.md` + `guides/authenticate.md`.
+- The **safety model** → `explanation/agent-safety.md`.
+- Install/quickstart steps → `start/quickstart.md` **and** the root `README.md`.
+
+When you **add a command or feature**: add/edit the relevant docs page before the PR is "done".
+
+When you **cut a release** (see the `release` skill): update `CHANGELOG.md`, bump version
+references, and run `cd docs && pnpm build` so `llms.txt` regenerates.
+
+**Conventions:** each docs page has `owner` / `lastReviewed` frontmatter — refresh `lastReviewed`
+when you meaningfully revise a page. Prefer editing an existing page over a near-duplicate. If a
+code change has no doc impact, say so in the PR rather than silently skipping docs.

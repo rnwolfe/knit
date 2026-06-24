@@ -2,3 +2,8 @@
 /knit
 *.out
 .DS_Store
+
+# docs (Astro Starlight) build artifacts
+docs/node_modules/
+docs/dist/
+docs/.astro/

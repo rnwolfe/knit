@@ -1,0 +1,56 @@
+/* knit docs — "running stitch" theme: coral thread on ink, matching knitcli.sh */
+@import '@fontsource-variable/space-grotesk';
+@import '@fontsource-variable/jetbrains-mono';
+
+:root {
+  --sl-font: 'Space Grotesk Variable', system-ui, sans-serif;
+  --sl-font-mono: 'JetBrains Mono Variable', ui-monospace, monospace;
+  --knit-thread: #ff5a36;
+
+  /* coral accent ramp */
+  --sl-color-accent-low: #3a160d;
+  --sl-color-accent: #ff5a36;
+  --sl-color-accent-high: #ffc9bb;
+
+  --sl-color-text-accent: #ff7a5c;
+  --sl-content-width: 50rem;
+}
+
+/* dark theme = the brand canvas */
+:root[data-theme='dark'] {
+  --sl-color-bg: #0b0b0f;
+  --sl-color-bg-nav: #0d0d14;
+  --sl-color-bg-sidebar: #0c0c12;
+  --sl-color-hairline-shade: #20202a;
+  --sl-color-gray-6: #121219;
+}
+
+.site-title { letter-spacing: -0.03em; font-weight: 700; }
+
+/* a coral running-stitch under page H1s — the signature motif */
+.sl-markdown-content h1 {
+  letter-spacing: -0.03em;
+  border-bottom: 0;
+  padding-bottom: 0.3em;
+  background-image: repeating-linear-gradient(
+    90deg, var(--knit-thread) 0 9px, transparent 9px 18px);
+  background-size: 100% 3px;
+  background-position: 0 100%;
+  background-repeat: no-repeat;
+}
+
+/* code blocks: coral-tinted frame */
+.expressive-code .frame { border-radius: 10px; }
+:root[data-theme='dark'] .expressive-code .frame pre {
+  border-color: #23232e;
+}
+
+/* inline code accent */
+.sl-markdown-content :not(pre) > code {
+  color: var(--sl-color-accent-high);
+  background: #ff5a3614;
+  border: 1px solid #ff5a3622;
+}
+
+/* "untrusted fence" callout vibe for asides */
+.starlight-aside--caution { border-inline-start-color: var(--knit-thread); }
