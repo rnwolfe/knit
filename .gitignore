@@ -1,0 +1,4 @@
+/dist/
+/knit
+*.out
+.DS_Store
