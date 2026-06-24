@@ -226,12 +226,35 @@ search results or mentions). Profile `biography` is also user-controlled → fen
 numeric → no fencing needed.
 
 ---
-### Open items for `cli-implement` to resolve
-1. ~~Confirm `http://localhost` is an accepted `redirect_uri`.~~ **RESOLVED: no** — Meta
-   requires HTTPS callbacks (saadiq/threads-cli uses mkcert). `--token-stdin` is primary;
-   browser `auth login` uses HTTPS loopback or the user's `expose`/Caddy redirect.
-2. Verify a **repost** endpoint exists in the official API; if absent, drop `post repost`.
-3. Confirm exact field name / mechanism for **hide-reply** (`manage_reply` vs `is_reply_hidden`)
-   and the conversation-tree pagination shape.
-4. Confirm whether an official **delete** endpoint exists; if so, add `post delete` (mutation,
-   gated, idempotent — delete-already-gone = soft success per contract §9).
+### Open items — ALL RESOLVED during cli-implement (2026-06-23)
+1. ~~`http://localhost` redirect?~~ **No** — Meta requires HTTPS callbacks. `--token-stdin`
+   primary; browser `auth login` uses paste-the-callback-URL (no server/cert).
+2. ~~Repost endpoint?~~ **YES** — `POST /{threads-id}/repost`. `post repost` kept.
+3. ~~Hide-reply mechanism?~~ **YES** — `POST /{reply-id}/manage_reply?hide=true|false`
+   (scope `threads_manage_replies`). Reply read fields include `hide_status`
+   (NOT_HUSHED|UNHUSHED|HIDDEN|COVERED|BLOCKED|RESTRICTED), `has_replies`, `root_post`,
+   `replied_to`, `reply_audience`. Conversation pagination = Graph `paging.cursors.after`.
+4. ~~Delete endpoint?~~ **YES (added 2025)** — `DELETE /{threads-media-id}` (scope
+   `threads_delete`), returns `{success, deleted_id}`, 100/24h. **`post delete` added**
+   (gated, idempotent — delete-already-gone = soft success per contract §9).
+
+### Verified API facts (for the client)
+- **Token**: sent as `?access_token=` query param. Long-lived exchange `GET
+  /access_token?grant_type=th_exchange_token&client_secret=&access_token=` → 60d
+  (`expires_in≈5184000`). Refresh `GET /refresh_access_token?grant_type=th_refresh_token&access_token=`
+  (token must be ≥24h old, <60d). Short-lived: `POST /oauth/access_token` (form) → `{access_token, user_id}`.
+- **Authorize**: `https://threads.net/oauth/authorize?client_id=&redirect_uri=&scope=<comma-sep>&response_type=code&state=`;
+  callback returns `?code=…#_` (strip trailing `#_`).
+- **Publish**: 2-step `POST /me/threads` (media_type TEXT|IMAGE|VIDEO|CAROUSEL, text, image_url,
+  video_url, children, reply_to_id, quote_post_id, link_attachment, topic_tag, reply_control,
+  location_id) → creation id → `POST /me/threads_publish?creation_id=`. VIDEO: poll
+  `GET /{container}?fields=status` until FINISHED. Quota check: `GET /me/threads_publishing_limit?fields=quota_usage,config`.
+- **Reads**: media fields `id,media_product_type,media_type,media_url,permalink,owner,username,
+  text,timestamp,shortcode,thumbnail_url,children,is_quote_post,quoted_post,reposted_post,
+  link_attachment_url,topic_tag`. Profile fields `id,username,name,threads_profile_picture_url,
+  threads_biography,is_verified`. Search `GET /keyword_search?q=&search_type=TOP|RECENT&search_mode=TAG&media_type=`.
+  Mentions `GET /me/mentions`. Insights `GET /{media}/insights?metric=views,likes,replies,reposts,quotes,shares`,
+  `GET /me/threads_insights?metric=…,followers_count,follower_demographics` (data[].name + values[].value|total_value.value).
+- **Errors**: `{error:{message,type,code,error_subcode,fbtrace_id}}`. Rate limit = HTTP 429, codes
+  4 (app) / 17 (user) / 32 (account) / 613 (custom); headers `X-App-Usage`, `X-Business-Use-Case-Usage`.
+  Invalid/expired token = code 190.
