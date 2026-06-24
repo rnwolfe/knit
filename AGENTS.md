@@ -5,9 +5,9 @@ agent-cli-factory contract: read-only by default, in-binary mutation gate, struc
 exit codes, machine-readable `schema --json`, embedded `SKILL.md`, token-bounded output,
 prompt-injection fencing.
 
-> **Status: scaffold.** The command surface, contract plumbing, and tests are real and green,
-> but the target logic is a local placeholder. `cli-implement` wires the real Threads API +
-> auth (see "Wiring the real target" below). `spec.md` is the source of truth.
+> **Status: implemented.** Commands talk to the real Threads API (`internal/api`) with OAuth +
+> keyring auth (`internal/auth`). `spec.md` is the source of truth. Remaining work is polish
+> (`cli-publish`): docs site, VHS demo, discoverability.
 
 ## Build / test / run
 
@@ -24,15 +24,20 @@ go run ./cmd/knit schema  # machine-readable command tree + exit codes + live sa
 ```
 cmd/knit/main.go              # os.Exit(cli.Run(...)) only — no logic
 internal/cli/                 # kong grammar + per-noun commands
-  root.go                     #   global flags, Runtime, the Guard mutation gate, error mapping
+  root.go                     #   global flags, Runtime, the Guard gate, fencing decision, error mapping
   post.go reply.go profile.go #   the noun-verb surface (post/reply/profile/search/mentions/insights)
   search.go mentions.go insights.go
-  misc.go                     #   auth / doctor / schema / agent / version
+  authcmd.go                  #   auth login/status/logout/refresh (OAuth + keyring)
+  doctor.go                   #   real config/credentials/connectivity/token checks
+  fence.go                    #   prompt-injection fencing of untrusted text (§8)
+  misc.go                     #   schema / agent / version
   suggest.go                  #   "did you mean" (levenshtein)
-  cli_test.go                 #   contract tests
+  cli_test.go schema_golden_test.go
+internal/api/                 # real Threads client: client.go (transport+error mapping),
+                              #   threads.go (reads), publish.go (writes), types.go, iface.go
+internal/auth/                # auth.go (KNIT_TOKEN/keyring/0600 storage), oauth.go (the flows)
 internal/output/              # output contract: stdout=data, --format, --select, --limit, the read envelope
 internal/errs/                # stable exit-code table + structured CLIError
-internal/store/               # PLACEHOLDER target (local JSON) — REPLACE in cli-implement
 internal/skill/SKILL.md       # embedded agent contract (printed by `knit agent`)
 internal/version/             # ldflags version + ReadBuildInfo fallback
 ```
@@ -47,14 +52,13 @@ internal/version/             # ldflags version + ReadBuildInfo fallback
 - Reads emit the stable envelope via `rt.Out.EmitEnvelope(data, nextCursor)` —
   `{schemaVersion, data, nextCursor?}`. Output field names are **append-only**.
 - Exit codes come from `internal/errs` — never collapse to bare `1`.
+- Commands depend on the `api.Threads` interface via `rt.API`; tests inject fakes through the
+  `apiFactory` seam. Secrets via stdin/env, **never argv**.
+- The **schema-snapshot golden** (`internal/cli/testdata/schema.golden.json`) is a CI gate.
+  After an intentional surface change: `KNIT_UPDATE_GOLDEN=1 go test ./internal/cli/`.
 
-## Wiring the real target (cli-implement)
-
-1. Replace `internal/store/` with `internal/api/` (direct HTTP to `graph.threads.net`) and add
-   `internal/auth/` (OS keyring via `99designs/keyring`, `0600` fallback).
-2. Wire auth per `spec.md` §Auth: `--token-stdin` (primary, headless) + paste-the-callback-URL
-   (human onboarding); long-lived 60-day token with `auth refresh`. Secrets via stdin/env,
-   **never argv**. `KNIT_CLIENT_ID` / `KNIT_CLIENT_SECRET` for the Threads app credentials.
-3. Repoint each command's `Run` at the API client; fill the full output schema from `spec.md`.
-4. Fence untrusted text (post/reply/search/mentions text + profile bio) in agent mode (contract §8).
-5. Resolve the open items in `spec.md`: repost endpoint, hide-reply mechanism, delete endpoint.
+## Known follow-ups
+- Multi-image/video **carousel** posts: the container path supports `children`, but `post create`
+  currently publishes a single media item. Extend `api.Publish` + the command to build carousels.
+- `insights account --metric follower_demographics` requires a `breakdown` param — surface it
+  as a flag when wiring richer demographics.
