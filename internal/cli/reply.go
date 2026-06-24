@@ -1,9 +1,12 @@
 package cli
 
-import "github.com/rnwolfe/knit/internal/errs"
+import (
+	"github.com/rnwolfe/knit/internal/api"
+	"github.com/rnwolfe/knit/internal/errs"
+)
 
-// ReplyCmd groups reply reads + reply management. Reads return free text from other users
-// → fence as untrusted in agent mode (contract §8). hide/unhide are idempotent (contract §9).
+// ReplyCmd groups reply reads + reply management. Reply text comes from other users → fenced
+// in agent mode (contract §8). hide/unhide are idempotent (contract §9).
 type ReplyCmd struct {
 	List   ReplyListCmd   `cmd:"" help:"List top-level replies to a post."`
 	Tree   ReplyTreeCmd   `cmd:"" help:"Show the full conversation tree for a post."`
@@ -20,8 +23,12 @@ type ReplyListCmd struct {
 }
 
 func (c *ReplyListCmd) Run(rt *Runtime) error {
-	// PLACEHOLDER: cli-implement wires `GET /{media-id}/replies` and fences the text.
-	return rt.Out.EmitEnvelope([]any{}, "")
+	replies, cursor, err := rt.API.ListReplies(rt.Ctx, c.ID, api.PageOpts{Limit: rt.Cfg.Limit, Cursor: c.Cursor})
+	if err != nil {
+		return err
+	}
+	rt.fenceReplies(replies)
+	return rt.Out.EmitEnvelope(replies, cursor)
 }
 
 type ReplyTreeCmd struct {
@@ -30,8 +37,12 @@ type ReplyTreeCmd struct {
 }
 
 func (c *ReplyTreeCmd) Run(rt *Runtime) error {
-	// PLACEHOLDER: cli-implement wires `GET /{media-id}/conversation`.
-	return rt.Out.EmitEnvelope([]any{}, "")
+	replies, cursor, err := rt.API.Conversation(rt.Ctx, c.ID, api.PageOpts{Limit: rt.Cfg.Limit, Cursor: c.Cursor})
+	if err != nil {
+		return err
+	}
+	rt.fenceReplies(replies)
+	return rt.Out.EmitEnvelope(replies, cursor)
 }
 
 // --- reply create (mutation) ------------------------------------------------
@@ -63,8 +74,15 @@ func (c *ReplyCreateCmd) Run(rt *Runtime) error {
 		return errs.New(errs.ExitUsage, "PLAN_MISMATCH", "the --apply hash does not match the current plan",
 			"re-run with --dry-run to get the current hash")
 	}
-	// PLACEHOLDER publish.
-	return rt.Out.Emit(map[string]any{"ok": true, "id": "placeholder", "permalink": ""})
+	var images []string
+	if c.Image != "" {
+		images = []string{c.Image}
+	}
+	p, err := rt.API.Publish(rt.Ctx, api.PublishReq{Text: c.Text, ImageURLs: images, ReplyToID: c.ID})
+	if err != nil {
+		return err
+	}
+	return rt.Out.Emit(map[string]any{"ok": true, "id": p.ID, "permalink": deref(p.Permalink)})
 }
 
 // --- reply hide / unhide (idempotent mutations) -----------------------------
@@ -73,29 +91,24 @@ type ReplyHideCmd struct {
 	ID string `arg:"" help:"Reply id to hide."`
 }
 
-func (c *ReplyHideCmd) Run(rt *Runtime) error { return setHidden(rt, c.ID, true, "reply hide") }
+func (c *ReplyHideCmd) Run(rt *Runtime) error { return manageReply(rt, c.ID, true, "reply hide") }
 
 type ReplyUnhideCmd struct {
 	ID string `arg:"" help:"Reply id to unhide."`
 }
 
-func (c *ReplyUnhideCmd) Run(rt *Runtime) error { return setHidden(rt, c.ID, false, "reply unhide") }
+func (c *ReplyUnhideCmd) Run(rt *Runtime) error { return manageReply(rt, c.ID, false, "reply unhide") }
 
-func setHidden(rt *Runtime, id string, hidden bool, op string) error {
+func manageReply(rt *Runtime, id string, hide bool, op string) error {
 	if err := rt.Guard(op); err != nil {
 		return err
 	}
 	if rt.Cfg.DryRun {
 		return rt.Out.Emit(map[string]any{"dryRun": true, "action": op, "id": id})
 	}
-	// Idempotent: setting the state it already has is a soft success (contract §9).
-	changed, err := rt.Store.SetReplyHidden(id, hidden)
+	r, err := rt.API.ManageReply(rt.Ctx, id, hide)
 	if err != nil {
-		return errs.New(errs.ExitConfig, "STORE_ERROR", err.Error(), "check the store path")
+		return err
 	}
-	status := "NOT_HUSHED"
-	if hidden {
-		status = "HIDDEN"
-	}
-	return rt.Out.Emit(map[string]any{"ok": true, "id": id, "hideStatus": status, "changed": changed})
+	return rt.Out.Emit(map[string]any{"ok": true, "id": r.ID, "hideStatus": r.HideStatus})
 }

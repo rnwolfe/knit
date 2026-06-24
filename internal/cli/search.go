@@ -1,8 +1,10 @@
 package cli
 
+import "github.com/rnwolfe/knit/internal/api"
+
 // SearchCmd searches public Threads posts. Results are attacker-controllable free text →
-// fence as untrusted in agent mode (contract §8). Without advanced access the API silently
-// scopes to the user's own posts, so the envelope carries scope:public|self (spec.md).
+// fenced in agent mode (contract §8). The envelope carries scope:public|self so an agent knows
+// whether advanced access was actually in effect (without it, the API returns only own posts).
 type SearchCmd struct {
 	Posts SearchPostsCmd `cmd:"" help:"Search posts by keyword or topic tag."`
 }
@@ -15,6 +17,18 @@ type SearchPostsCmd struct {
 }
 
 func (c *SearchPostsCmd) Run(rt *Runtime) error {
-	// PLACEHOLDER. cli-implement wires `GET /keyword_search` and sets scope from granted access.
-	return rt.Out.EmitEnvelopeWith([]any{}, "", map[string]any{"scope": "self"})
+	posts, cursor, scope, err := rt.API.Search(rt.Ctx, api.SearchOpts{
+		Query:     c.Keyword,
+		MediaType: c.MediaType,
+		Tag:       c.Mode == "tag",
+		PageOpts:  api.PageOpts{Limit: rt.Cfg.Limit, Cursor: c.Cursor},
+	})
+	if err != nil {
+		return err
+	}
+	if scope == "self" {
+		rt.Out.Info("note: scope=self — results limited to your own posts (advanced access for public search not granted)")
+	}
+	rt.fencePosts(posts)
+	return rt.Out.EmitEnvelopeWith(posts, cursor, map[string]any{"scope": scope})
 }

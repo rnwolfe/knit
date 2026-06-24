@@ -1,6 +1,6 @@
 package cli
 
-// ProfileCmd reads a Threads profile. Placeholder: cli-implement wires `GET /me` / `GET /{user-id}`.
+// ProfileCmd reads a Threads profile. The biography is user-controlled → fenced in agent mode.
 type ProfileCmd struct {
 	Get ProfileGetCmd `cmd:"" help:"Get a profile (self or by user id)."`
 }
@@ -10,13 +10,10 @@ type ProfileGetCmd struct {
 }
 
 func (c *ProfileGetCmd) Run(rt *Runtime) error {
-	// PLACEHOLDER profile shaped per spec.md (biography is user-controlled → fence in agent mode).
-	profile := map[string]any{
-		"id":                c.User,
-		"username":          "",
-		"name":              "",
-		"biography":         "",
-		"profilePictureUrl": "",
+	p, err := rt.API.Profile(rt.Ctx, c.User)
+	if err != nil {
+		return err
 	}
-	return rt.Out.EmitEnvelope(profile, "")
+	rt.fenceProfile(p)
+	return rt.Out.EmitEnvelope(p, "")
 }

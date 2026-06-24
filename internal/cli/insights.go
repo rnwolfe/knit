@@ -1,5 +1,7 @@
 package cli
 
+import "github.com/rnwolfe/knit/internal/api"
+
 // InsightsCmd reads post- and account-level metrics. Numeric → no injection fencing needed.
 type InsightsCmd struct {
 	Post    InsightsPostCmd    `cmd:"" help:"Per-post metrics by media id."`
@@ -11,10 +13,9 @@ type InsightsPostCmd struct {
 }
 
 func (c *InsightsPostCmd) Run(rt *Runtime) error {
-	// PLACEHOLDER. cli-implement wires `GET /{media-id}/insights`.
-	metrics := map[string]any{
-		"views": nil, "likes": nil, "replies": nil,
-		"reposts": nil, "quotes": nil, "shares": nil,
+	metrics, err := rt.API.PostInsights(rt.Ctx, c.ID)
+	if err != nil {
+		return err
 	}
 	return rt.Out.EmitEnvelope(metrics, "")
 }
@@ -26,10 +27,11 @@ type InsightsAccountCmd struct {
 }
 
 func (c *InsightsAccountCmd) Run(rt *Runtime) error {
-	// PLACEHOLDER. cli-implement wires `GET /{user-id}/threads_insights`.
-	metrics := map[string]any{
-		"views": nil, "likes": nil, "replies": nil, "reposts": nil,
-		"quotes": nil, "shares": nil, "followersCount": nil, "followerDemographics": nil,
+	metrics, err := rt.API.AccountInsights(rt.Ctx, api.AccountInsightsOpts{
+		Metrics: c.Metrics, Since: c.Since, Until: c.Until,
+	})
+	if err != nil {
+		return err
 	}
 	return rt.Out.EmitEnvelope(metrics, "")
 }

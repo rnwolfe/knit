@@ -3,6 +3,7 @@
 package cli
 
 import (
+	"context"
 	"encoding/json"
 	"errors"
 	"fmt"
@@ -12,9 +13,10 @@ import (
 
 	"github.com/alecthomas/kong"
 
+	"github.com/rnwolfe/knit/internal/api"
+	"github.com/rnwolfe/knit/internal/auth"
 	"github.com/rnwolfe/knit/internal/errs"
 	"github.com/rnwolfe/knit/internal/output"
-	"github.com/rnwolfe/knit/internal/store"
 )
 
 // CLI is the kong grammar. Global flags are the universal agent-CLI contract surface;
@@ -36,6 +38,11 @@ type CLI struct {
 	Force          bool `help:"Bypass safety checks."`
 	NoInput        bool `help:"Never prompt; fail with exit 13 instead."`
 
+	// Prompt-injection hardening (contract §8). Default-ON when an agent is consuming output
+	// (JSON or non-TTY); force either way with these flags.
+	WrapUntrusted   bool `help:"Fence free text from Threads as untrusted (force on)."`
+	NoWrapUntrusted bool `help:"Do not fence untrusted text (force off)."`
+
 	// Commands (noun-verb, service-namespaced)
 	Profile  ProfileCmd  `cmd:"" help:"Read Threads profiles."`
 	Post     PostCmd     `cmd:"" help:"List, read, and publish posts."`
@@ -54,8 +61,21 @@ type CLI struct {
 type Runtime struct {
 	Cfg   *CLI
 	Out   *output.Writer
-	Store *store.Store
+	API   api.Threads
+	Creds *auth.Credentials
 	Stdin io.Reader
+	Ctx   context.Context
+	Wrap  bool // effective prompt-injection fencing decision
+}
+
+// apiFactory builds the API client from credentials. It's a package var so tests inject fakes.
+var apiFactory = func(creds *auth.Credentials) api.Threads {
+	token, uid := "", "me"
+	if creds != nil {
+		token = creds.AccessToken
+		uid = creds.UserID
+	}
+	return api.New(token, uid)
 }
 
 // Guard enforces the read-only-by-default mutation gate (contract §2).
@@ -111,7 +131,24 @@ func newRuntime(cfg *CLI, stdin io.Reader, stdout, stderr io.Writer) *Runtime {
 		Stdout: stdout, Stderr: stderr,
 		Format: format, Color: color, Limit: cfg.Limit, Select: sel,
 	}
-	return &Runtime{Cfg: cfg, Out: w, Store: store.New(store.DefaultPath()), Stdin: stdin}
+	creds, _ := auth.Load() // nil when unconfigured; commands raise AUTH_REQUIRED on use
+	return &Runtime{
+		Cfg: cfg, Out: w, API: apiFactory(creds), Creds: creds, Stdin: stdin,
+		Ctx:  context.Background(),
+		Wrap: wrapDecision(cfg, format, stdout),
+	}
+}
+
+// wrapDecision resolves prompt-injection fencing: explicit flags win; otherwise default-ON
+// when an agent is consuming output (JSON format or a non-TTY stdout).
+func wrapDecision(cfg *CLI, format output.Format, stdout io.Writer) bool {
+	if cfg.NoWrapUntrusted {
+		return false
+	}
+	if cfg.WrapUntrusted {
+		return true
+	}
+	return format == output.FormatJSON || !isTTY(stdout)
 }
 
 func isTTY(w io.Writer) bool {

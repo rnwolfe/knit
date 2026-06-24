@@ -1,0 +1,413 @@
+{
+  "commands": {
+    "flags": [
+      {
+        "default": "plain",
+        "help": "Output format: json, plain, or tsv.",
+        "name": "format"
+      },
+      {
+        "help": "Shorthand for --format=json.",
+        "name": "json"
+      },
+      {
+        "help": "Disable colored output.",
+        "name": "no-color"
+      },
+      {
+        "default": "50",
+        "help": "Maximum items to return for list operations.",
+        "name": "limit"
+      },
+      {
+        "help": "Comma-separated dot-path field projection, e.g. id,title.",
+        "name": "select"
+      },
+      {
+        "help": "Terser output (default).",
+        "name": "concise"
+      },
+      {
+        "help": "Richer output.",
+        "name": "detailed"
+      },
+      {
+        "help": "Permit state-changing operations (off by default).",
+        "name": "allow-mutations"
+      },
+      {
+        "help": "Print intended mutations without performing them.",
+        "name": "dry-run"
+      },
+      {
+        "help": "Assume yes for confirmations (scripting).",
+        "name": "yes"
+      },
+      {
+        "help": "Bypass safety checks.",
+        "name": "force"
+      },
+      {
+        "help": "Never prompt; fail with exit 13 instead.",
+        "name": "no-input"
+      },
+      {
+        "help": "Fence free text from Threads as untrusted (force on).",
+        "name": "wrap-untrusted"
+      },
+      {
+        "help": "Do not fence untrusted text (force off).",
+        "name": "no-wrap-untrusted"
+      }
+    ],
+    "name": "knit",
+    "subcommands": [
+      {
+        "help": "Read Threads profiles.",
+        "name": "profile",
+        "subcommands": [
+          {
+            "args": [
+              {
+                "help": "User id, or 'me' (default).",
+                "name": "user"
+              }
+            ],
+            "help": "Get a profile (self or by user id).",
+            "name": "get"
+          }
+        ]
+      },
+      {
+        "help": "List, read, and publish posts.",
+        "name": "post",
+        "subcommands": [
+          {
+            "flags": [
+              {
+                "help": "Only posts on/after this ISO-8601 date.",
+                "name": "since"
+              },
+              {
+                "help": "Only posts on/before this ISO-8601 date.",
+                "name": "until"
+              },
+              {
+                "help": "Opaque pagination cursor from a previous nextCursor.",
+                "name": "cursor"
+              }
+            ],
+            "help": "List the authenticated user's posts.",
+            "name": "list"
+          },
+          {
+            "args": [
+              {
+                "help": "Media id of the post.",
+                "name": "id"
+              }
+            ],
+            "help": "Get one post by media id.",
+            "name": "get"
+          },
+          {
+            "flags": [
+              {
+                "help": "Post text.",
+                "name": "text"
+              },
+              {
+                "help": "Image URL (repeatable for a carousel).",
+                "name": "image"
+              },
+              {
+                "help": "Video URL (repeatable for a carousel).",
+                "name": "video"
+              },
+              {
+                "help": "Link attachment URL.",
+                "name": "link"
+              },
+              {
+                "help": "Reply to this media id.",
+                "name": "reply-to"
+              },
+              {
+                "help": "Quote this media id.",
+                "name": "quote"
+              },
+              {
+                "help": "Topic tag.",
+                "name": "topic"
+              },
+              {
+                "help": "Who can reply.",
+                "name": "reply-audience"
+              },
+              {
+                "help": "Publish only the plan whose --dry-run hash equals this value.",
+                "name": "apply"
+              }
+            ],
+            "help": "Publish a post (mutation; reviewed-artifact via --dry-run/--apply).",
+            "name": "create"
+          },
+          {
+            "args": [
+              {
+                "help": "Media id to repost.",
+                "name": "id"
+              }
+            ],
+            "help": "Repost a post by media id (mutation).",
+            "name": "repost"
+          },
+          {
+            "args": [
+              {
+                "help": "Media id to delete.",
+                "name": "id"
+              }
+            ],
+            "help": "Delete a post by media id (mutation, idempotent).",
+            "name": "delete"
+          }
+        ]
+      },
+      {
+        "help": "Read replies and manage replies on your posts.",
+        "name": "reply",
+        "subcommands": [
+          {
+            "args": [
+              {
+                "help": "Media id of the post.",
+                "name": "id"
+              }
+            ],
+            "flags": [
+              {
+                "help": "Opaque pagination cursor.",
+                "name": "cursor"
+              }
+            ],
+            "help": "List top-level replies to a post.",
+            "name": "list"
+          },
+          {
+            "args": [
+              {
+                "help": "Media id of the post.",
+                "name": "id"
+              }
+            ],
+            "flags": [
+              {
+                "help": "Opaque pagination cursor.",
+                "name": "cursor"
+              }
+            ],
+            "help": "Show the full conversation tree for a post.",
+            "name": "tree"
+          },
+          {
+            "args": [
+              {
+                "help": "Media id to reply to.",
+                "name": "id"
+              }
+            ],
+            "flags": [
+              {
+                "help": "Reply text.",
+                "name": "text"
+              },
+              {
+                "help": "Image URL.",
+                "name": "image"
+              },
+              {
+                "help": "Publish only the plan whose --dry-run hash equals this value.",
+                "name": "apply"
+              }
+            ],
+            "help": "Reply to a post (mutation).",
+            "name": "create"
+          },
+          {
+            "args": [
+              {
+                "help": "Reply id to hide.",
+                "name": "id"
+              }
+            ],
+            "help": "Hide a reply on your post (mutation, idempotent).",
+            "name": "hide"
+          },
+          {
+            "args": [
+              {
+                "help": "Reply id to unhide.",
+                "name": "id"
+              }
+            ],
+            "help": "Unhide a reply on your post (mutation, idempotent).",
+            "name": "unhide"
+          }
+        ]
+      },
+      {
+        "help": "Search public posts by keyword or topic.",
+        "name": "search",
+        "subcommands": [
+          {
+            "args": [
+              {
+                "help": "Keyword or topic to search.",
+                "name": "keyword"
+              }
+            ],
+            "flags": [
+              {
+                "help": "Filter by media type.",
+                "name": "media-type"
+              },
+              {
+                "default": "keyword",
+                "help": "Search mode: keyword or topic tag.",
+                "name": "mode"
+              },
+              {
+                "help": "Opaque pagination cursor.",
+                "name": "cursor"
+              }
+            ],
+            "help": "Search posts by keyword or topic tag.",
+            "name": "posts"
+          }
+        ]
+      },
+      {
+        "help": "List public posts mentioning you.",
+        "name": "mentions",
+        "subcommands": [
+          {
+            "flags": [
+              {
+                "help": "Opaque pagination cursor.",
+                "name": "cursor"
+              }
+            ],
+            "help": "List public posts that mention you.",
+            "name": "list"
+          }
+        ]
+      },
+      {
+        "help": "Read post- and account-level metrics.",
+        "name": "insights",
+        "subcommands": [
+          {
+            "args": [
+              {
+                "help": "Media id of the post.",
+                "name": "id"
+              }
+            ],
+            "help": "Per-post metrics by media id.",
+            "name": "post"
+          },
+          {
+            "flags": [
+              {
+                "help": "Subset of metrics to return (default: all).",
+                "name": "metrics"
+              },
+              {
+                "help": "ISO-8601 start of the window.",
+                "name": "since"
+              },
+              {
+                "help": "ISO-8601 end of the window.",
+                "name": "until"
+              }
+            ],
+            "help": "Account-level metrics + demographics.",
+            "name": "account"
+          }
+        ]
+      },
+      {
+        "help": "Manage authentication.",
+        "name": "auth",
+        "subcommands": [
+          {
+            "help": "Test the token; report account, expiry, and source.",
+            "name": "status"
+          },
+          {
+            "flags": [
+              {
+                "help": "Read a pre-obtained token from stdin (headless; no browser).",
+                "name": "token-stdin"
+              }
+            ],
+            "help": "Authenticate (paste-the-callback-URL, or --token-stdin).",
+            "name": "login"
+          },
+          {
+            "help": "Remove stored credentials from the keyring/file (local only).",
+            "name": "logout"
+          },
+          {
+            "help": "Extend the long-lived (60-day) token; safe on a schedule.",
+            "name": "refresh"
+          }
+        ]
+      },
+      {
+        "flags": [
+          {
+            "help": "Terser, machine-skimmable diagnostics for an agent.",
+            "name": "for-agent"
+          }
+        ],
+        "help": "Diagnose setup and report fixes.",
+        "name": "doctor"
+      },
+      {
+        "help": "Print the machine-readable command schema (JSON).",
+        "name": "schema"
+      },
+      {
+        "help": "Print the bundled agent SKILL.md.",
+        "name": "agent"
+      },
+      {
+        "help": "Print the version.",
+        "name": "version"
+      }
+    ]
+  },
+  "exit_codes": {
+    "auth_required": 4,
+    "cancelled": 130,
+    "config_error": 10,
+    "empty_results": 3,
+    "generic_error": 1,
+    "input_required": 13,
+    "mutation_blocked": 12,
+    "not_found": 5,
+    "ok": 0,
+    "permission": 6,
+    "rate_limited": 7,
+    "retryable": 8,
+    "usage": 2
+  },
+  "safety": {
+    "allow_mutations": false,
+    "dry_run": false,
+    "no_input": false
+  },
+  "tool": "knit"
+}

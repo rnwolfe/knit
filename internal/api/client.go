@@ -157,11 +157,11 @@ func mapError(resp *http.Response, body []byte) *errs.CLIError {
 		return errs.New(errs.ExitRate, "RATE_LIMITED", msg, fix)
 	case ge.Error.Code == 190 || resp.StatusCode == http.StatusUnauthorized:
 		return errs.New(errs.ExitAuth, "AUTH_REQUIRED", msg, "token invalid/expired — run `knit auth refresh` or `knit auth login`")
+	case resp.StatusCode == http.StatusNotFound || isNotFoundCode(ge.Error.Code):
+		return errs.New(errs.ExitNotFound, "NOT_FOUND", msg, "verify the id exists and is visible to you")
 	case isPermCode(ge.Error.Code) || resp.StatusCode == http.StatusForbidden:
 		return errs.New(errs.ExitPerm, "PERMISSION_DENIED", msg,
 			"a required scope or advanced access is missing — check `knit auth status` and App Review")
-	case resp.StatusCode == http.StatusNotFound:
-		return errs.New(errs.ExitNotFound, "NOT_FOUND", msg, "verify the id exists and is visible to you")
 	case resp.StatusCode/100 == 5:
 		return errs.New(errs.ExitRetry, "RETRYABLE", msg, "transient upstream error — retry")
 	default:
@@ -179,10 +179,15 @@ func isRateCode(code int) bool {
 
 func isPermCode(code int) bool {
 	switch code {
-	case 10, 200, 803:
+	case 10, 200:
 		return true
 	}
 	return false
+}
+
+// isNotFoundCode covers the Graph "object/alias does not exist" code (e.g. a deleted media id).
+func isNotFoundCode(code int) bool {
+	return code == 803
 }
 
 // retryAfter reads Retry-After or the X-Business-Use-Case-Usage regain estimate (minutes).
