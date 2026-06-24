@@ -25,12 +25,13 @@ const SchemaVersion = 1
 
 // Writer routes all command output. Data goes to Stdout; Info/Warn go to Stderr.
 type Writer struct {
-	Stdout io.Writer
-	Stderr io.Writer
-	Format Format
-	Color  bool
-	Limit  int
-	Select []string
+	Stdout  io.Writer
+	Stderr  io.Writer
+	Format  Format
+	Color   bool
+	Limit   int
+	Select  []string
+	Concise bool // drop null/empty fields from output (token economy)
 }
 
 // Info writes a human-facing message to stderr (keeps stdout parseable).
@@ -48,6 +49,9 @@ func (w *Writer) Emit(v any) error {
 		g = applySelect(g, w.Select)
 	}
 	g = w.applyLimit(g)
+	if w.Concise {
+		g = pruneEmpty(g)
+	}
 
 	switch w.Format {
 	case FormatJSON:
@@ -78,6 +82,9 @@ func (w *Writer) EmitEnvelopeWith(data any, nextCursor string, extra map[string]
 		g = applySelect(g, w.Select)
 	}
 	g = w.applyLimit(g)
+	if w.Concise {
+		g = pruneEmpty(g)
+	}
 
 	if w.Format == FormatJSON {
 		env := map[string]any{"schemaVersion": SchemaVersion, "data": g}
@@ -96,6 +103,46 @@ func (w *Writer) EmitEnvelopeWith(data any, nextCursor string, extra map[string]
 		w.Info("%s: %v", k, v)
 	}
 	return w.renderDelimited(g, "\t", w.Format == FormatPlain)
+}
+
+// pruneEmpty recursively drops null, empty-string, empty-slice, and empty-map fields (--concise).
+// Documented keys reappear under --detailed/default; this is an opt-in token-economy view.
+func pruneEmpty(g any) any {
+	switch t := g.(type) {
+	case map[string]any:
+		out := map[string]any{}
+		for k, v := range t {
+			pv := pruneEmpty(v)
+			if isEmptyValue(pv) {
+				continue
+			}
+			out[k] = pv
+		}
+		return out
+	case []any:
+		out := make([]any, 0, len(t))
+		for _, v := range t {
+			out = append(out, pruneEmpty(v))
+		}
+		return out
+	default:
+		return g
+	}
+}
+
+func isEmptyValue(v any) bool {
+	switch t := v.(type) {
+	case nil:
+		return true
+	case string:
+		return t == ""
+	case map[string]any:
+		return len(t) == 0
+	case []any:
+		return len(t) == 0
+	default:
+		return false
+	}
 }
 
 // toGeneric round-trips v through JSON into map/slice/scalar form for projection + rendering.

@@ -17,25 +17,23 @@ import (
 	"github.com/rnwolfe/knit/internal/auth"
 	"github.com/rnwolfe/knit/internal/errs"
 	"github.com/rnwolfe/knit/internal/output"
+	"github.com/rnwolfe/knit/internal/skill"
 )
 
 // CLI is the kong grammar. Global flags are the universal agent-CLI contract surface;
 // subcommands follow noun-verb grammar.
 type CLI struct {
 	// Output (contract §1, §6)
-	Format   string `enum:"json,plain,tsv" default:"plain" help:"Output format: json, plain, or tsv."`
-	JSON     bool   `help:"Shorthand for --format=json."`
-	NoColor  bool   `help:"Disable colored output."`
-	Limit    int    `default:"50" help:"Maximum items to return for list operations."`
-	Select   string `help:"Comma-separated dot-path field projection, e.g. id,title."`
-	Concise  bool   `help:"Terser output (default)."`
-	Detailed bool   `help:"Richer output."`
+	Format  string `enum:"json,plain,tsv" default:"plain" help:"Output format: json, plain, or tsv."`
+	JSON    bool   `help:"Shorthand for --format=json."`
+	NoColor bool   `help:"Disable colored output."`
+	Limit   int    `default:"50" help:"Maximum items to return for list operations."`
+	Select  string `help:"Comma-separated dot-path field projection, e.g. id,text."`
+	Concise bool   `help:"Drop null/empty fields from output (fewer tokens)."`
 
 	// Safety (contract §2)
 	AllowMutations bool `help:"Permit state-changing operations (off by default)."`
 	DryRun         bool `help:"Print intended mutations without performing them."`
-	Yes            bool `help:"Assume yes for confirmations (scripting)."`
-	Force          bool `help:"Bypass safety checks."`
 	NoInput        bool `help:"Never prompt; fail with exit 13 instead."`
 
 	// Prompt-injection hardening (contract §8). Default-ON when an agent is consuming output
@@ -88,6 +86,12 @@ func (rt *Runtime) Guard(op string) error {
 
 // Run parses args and dispatches, returning the process exit code.
 func Run(args []string, stdin io.Reader, stdout, stderr io.Writer) int {
+	// KNIT_HELP=agent: print the terse embedded contract and exit (contract §5), before parsing.
+	if os.Getenv("KNIT_HELP") == "agent" {
+		_, _ = io.WriteString(stdout, skill.Content)
+		return errs.ExitOK
+	}
+
 	var cfg CLI
 	helpShown := false
 	parser, err := kong.New(&cfg,
@@ -129,7 +133,7 @@ func newRuntime(cfg *CLI, stdin io.Reader, stdout, stderr io.Writer) *Runtime {
 	}
 	w := &output.Writer{
 		Stdout: stdout, Stderr: stderr,
-		Format: format, Color: color, Limit: cfg.Limit, Select: sel,
+		Format: format, Color: color, Limit: cfg.Limit, Select: sel, Concise: cfg.Concise,
 	}
 	creds, _ := auth.Load() // nil when unconfigured; commands raise AUTH_REQUIRED on use
 	return &Runtime{

@@ -20,16 +20,12 @@
         "name": "limit"
       },
       {
-        "help": "Comma-separated dot-path field projection, e.g. id,title.",
+        "help": "Comma-separated dot-path field projection, e.g. id,text.",
         "name": "select"
       },
       {
-        "help": "Terser output (default).",
+        "help": "Drop null/empty fields from output (fewer tokens).",
         "name": "concise"
-      },
-      {
-        "help": "Richer output.",
-        "name": "detailed"
       },
       {
         "help": "Permit state-changing operations (off by default).",
@@ -38,14 +34,6 @@
       {
         "help": "Print intended mutations without performing them.",
         "name": "dry-run"
-      },
-      {
-        "help": "Assume yes for confirmations (scripting).",
-        "name": "yes"
-      },
-      {
-        "help": "Bypass safety checks.",
-        "name": "force"
       },
       {
         "help": "Never prompt; fail with exit 13 instead.",

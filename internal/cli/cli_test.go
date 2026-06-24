@@ -204,6 +204,40 @@ func TestUntrustedFencingOnByDefault(t *testing.T) {
 	}
 }
 
+// KNIT_HELP=agent prints the terse embedded contract and exits 0 (contract §5).
+func TestAgentHelpEnv(t *testing.T) {
+	withFake(t)
+	t.Setenv("KNIT_HELP", "agent")
+	out, _, code := run(t, "post", "list")
+	if code != 0 {
+		t.Fatalf("exit = %d, want 0", code)
+	}
+	if !strings.Contains(out, "read-only by default") {
+		t.Fatalf("KNIT_HELP=agent did not print SKILL.md: %s", out)
+	}
+}
+
+// --concise drops null/empty fields for token economy.
+func TestConcisePrunesEmptyFields(t *testing.T) {
+	f := withFake(t)
+	text := "hi"
+	f.posts = []api.Post{{ID: "1", Username: "me", Text: &text, MediaType: "TEXT_POST"}} // MediaURL/Permalink nil
+	full, _, _ := run(t, "post", "list", "--json")
+	if !strings.Contains(full, "mediaUrl") {
+		t.Fatalf("default output should include null mediaUrl: %s", full)
+	}
+	concise, _, code := run(t, "post", "list", "--json", "--concise")
+	if code != 0 {
+		t.Fatalf("exit = %d, want 0", code)
+	}
+	if strings.Contains(concise, "mediaUrl") {
+		t.Fatalf("--concise should drop null mediaUrl: %s", concise)
+	}
+	if !strings.Contains(concise, "\"id\"") {
+		t.Fatalf("--concise should keep populated id: %s", concise)
+	}
+}
+
 // Agent self-description must ship embedded in the binary.
 func TestAgentPrintsSkill(t *testing.T) {
 	withFake(t)
