@@ -4,9 +4,10 @@ import starlight from '@astrojs/starlight';
 import starlightLlmsTxt from 'starlight-llms-txt';
 import { visit } from 'unist-util-visit';
 
-// GitHub Pages project site lives at a sub-path: https://rnwolfe.github.io/knit
-const SITE = 'https://rnwolfe.github.io';
-const BASE = '/knit';
+// Host-portable base/site. Default = root (Vercel / custom domain). A sub-path host
+// (e.g. GitHub Pages at /knit) sets BASE_PATH=/knit + SITE_URL=https://rnwolfe.github.io.
+const SITE = process.env.SITE_URL || 'https://knitcli.sh';
+const BASE = process.env.BASE_PATH || '/';
 
 // Base-prefix hand-written absolute Markdown links so they resolve under /knit/.
 // (Starlight base-prefixes nav/assets, but not in-content `/...` links.)
@@ -29,7 +30,8 @@ function rehypeBaseLinks() {
 export default defineConfig({
   site: SITE,
   base: BASE,
-  markdown: { rehypePlugins: [rehypeBaseLinks] },
+  // Only base-prefix in-content links when hosted under a sub-path; at root it's a no-op.
+  markdown: BASE === '/' ? {} : { rehypePlugins: [rehypeBaseLinks] },
   integrations: [
     starlight({
       title: 'knit',

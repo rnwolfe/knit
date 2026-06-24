@@ -7,3 +7,6 @@
 docs/node_modules/
 docs/dist/
 docs/.astro/
+
+# Vercel
+.vercel

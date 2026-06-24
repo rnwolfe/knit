@@ -12,7 +12,8 @@ posting gated *in the binary*, prompt-injection-fenced, machine-readable.
 [![Go Reference](https://pkg.go.dev/badge/github.com/rnwolfe/knit.svg)](https://pkg.go.dev/github.com/rnwolfe/knit)
 [![License: MIT](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
 
-<a href="https://knitcli.sh"><b>knitcli.sh</b></a> · <a href="https://rnwolfe.github.io/knit"><b>Docs</b></a>
+<a href="https://knit-rho.vercel.app"><b>Landing</b></a> · <a href="https://knit-docs-phi.vercel.app"><b>Docs</b></a>
+<sub>(custom domain <code>knitcli.sh</code> coming soon)</sub>
 
 ![knit demo](demo/knit.gif)
 
@@ -77,7 +78,7 @@ password).
   [SECURITY.md](SECURITY.md)).
 - Token storage: OS keyring → `0600` file fallback (perms-warned). Secrets **never** via argv.
 
-Getting a token (Meta app + tester setup) is walked through in the [docs](https://rnwolfe.github.io/knit).
+Getting a token (Meta app + tester setup) is walked through in the [docs](https://knit-docs-phi.vercel.app).
 
 ## Cookbook
 
