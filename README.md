@@ -43,18 +43,12 @@ Plenty of Threads CLIs exist. None is built for an autonomous agent to drive saf
 ## Install
 
 ```bash
-go install github.com/rnwolfe/knit/cmd/knit@main     # from source (pre-release)
-```
-
-> **Pre-release.** Tagged installs — `go install …@latest`, `brew install rnwolfe/tap/knit`, and
-> signed [Releases](https://github.com/rnwolfe/knit/releases) binaries — land with **v0.1.0**
-> (coming soon).
-
-<!-- After v0.1.0 ships, restore the tagged install block:
 go install github.com/rnwolfe/knit/cmd/knit@latest   # best for agents (one line, pinnable)
 brew install rnwolfe/tap/knit                        # best for humans
-Or grab a signed binary from Releases (linux · macOS · windows, amd64 · arm64).
--->
+```
+
+Or grab a signed binary from [Releases](https://github.com/rnwolfe/knit/releases) (linux ·
+macOS · windows, amd64 · arm64).
 
 ## Quickstart
 
