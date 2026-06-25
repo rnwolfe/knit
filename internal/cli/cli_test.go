@@ -4,6 +4,8 @@ import (
 	"bytes"
 	"context"
 	"encoding/json"
+	"net/http"
+	"net/http/httptest"
 	"strings"
 	"testing"
 
@@ -247,5 +249,50 @@ func TestAgentPrintsSkill(t *testing.T) {
 	}
 	if !strings.Contains(out, "knit") || !strings.Contains(out, "read-only by default") {
 		t.Fatalf("agent output missing embedded SKILL.md: %s", out)
+	}
+}
+
+// version --check reports the latest release and an upgrade hint when reachable.
+func TestVersionCheck(t *testing.T) {
+	withFake(t)
+	srv := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		_, _ = w.Write([]byte(`{"tag_name":"v999.0.0"}`))
+	}))
+	defer srv.Close()
+	t.Setenv("KNIT_RELEASES_URL", srv.URL)
+
+	out, _, code := run(t, "version", "--check", "--json")
+	if code != 0 {
+		t.Fatalf("exit = %d, want 0", code)
+	}
+	var m map[string]any
+	if err := json.Unmarshal([]byte(out), &m); err != nil {
+		t.Fatalf("stdout not valid JSON: %v\n%s", err, out)
+	}
+	if m["current"] == nil {
+		t.Fatalf("missing current: %v", m)
+	}
+	if m["latest"] != "v999.0.0" {
+		t.Fatalf("latest = %v, want v999.0.0", m["latest"])
+	}
+	if _, ok := m["upgrade"]; !ok {
+		t.Fatalf("missing upgrade hint: %v", m)
+	}
+}
+
+// version --check is fail-silent: an unreachable release source must never error or block.
+func TestVersionCheckFailSilent(t *testing.T) {
+	withFake(t)
+	t.Setenv("KNIT_RELEASES_URL", "http://127.0.0.1:0") // unreachable → fail-silent
+	out, _, code := run(t, "version", "--check", "--json")
+	if code != 0 {
+		t.Fatalf("exit = %d, want 0 (fail-silent), got %d", code, code)
+	}
+	var m map[string]any
+	if err := json.Unmarshal([]byte(out), &m); err != nil {
+		t.Fatalf("stdout not valid JSON: %v\n%s", err, out)
+	}
+	if m["updateAvailable"] != false {
+		t.Fatalf("updateAvailable = %v, want false on failure", m["updateAvailable"])
 	}
 }

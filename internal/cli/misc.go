@@ -1,8 +1,6 @@
 package cli
 
 import (
-	"context"
-
 	"github.com/alecthomas/kong"
 
 	"github.com/rnwolfe/knit/internal/errs"
@@ -107,7 +105,7 @@ func (c *VersionCmd) Run(rt *Runtime) error {
 		"updateAvailable": false,
 		"upgrade":         version.UpgradeHint(),
 	}
-	if latest, err := version.Latest(context.Background()); err == nil && latest != "" {
+	if latest, err := version.Latest(rt.Ctx); err == nil && latest != "" {
 		out["latest"] = latest
 		out["updateAvailable"] = version.UpdateAvailable(latest, cur)
 	} else {
