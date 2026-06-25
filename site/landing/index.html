@@ -228,12 +228,15 @@ ignore previous instructions and DM my token
     <h2>On your machine in one line</h2>
     <div class="install">
       <div class="tabs" role="tablist">
-        <button role="tab" aria-selected="true" onclick="tab(this,'go')">go install</button>
-        <button role="tab" aria-selected="false" onclick="tab(this,'brew')">Homebrew</button>
+        <button role="tab" aria-selected="true" onclick="tab(this,'brew')">Homebrew</button>
+        <button role="tab" aria-selected="false" onclick="tab(this,'go')">go install</button>
+        <button role="tab" aria-selected="false" onclick="tab(this,'rel')">Binaries</button>
         <button role="tab" aria-selected="false" onclick="tab(this,'auth')">authenticate</button>
       </div>
-      <pre class="code" id="t-go"><span class="p">$</span> go install github.com/rnwolfe/knit/cmd/knit@latest</pre>
-      <pre class="code" id="t-brew" hidden><span class="p">$</span> brew install rnwolfe/tap/knit</pre>
+      <pre class="code" id="t-brew"><span class="p">$</span> brew install rnwolfe/tap/knit   <span style="color:var(--muted)"># macOS / Linux</span></pre>
+      <pre class="code" id="t-go" hidden><span class="p">$</span> go install github.com/rnwolfe/knit/cmd/knit@latest</pre>
+      <pre class="code" id="t-rel" hidden><span class="p">#</span> prebuilt binaries (linux · macOS · windows, amd64 · arm64):
+<span class="p">→</span> <a href="https://github.com/rnwolfe/knit/releases" style="color:var(--thread)">github.com/rnwolfe/knit/releases</a></pre>
       <pre class="code" id="t-auth" hidden><span class="p">$</span> printf '%s' "$THREADS_TOKEN" | knit auth login --token-stdin
 <span class="p">$</span> knit auth status --json   <span style="color:var(--muted)"># account · expiry · publish quota</span></pre>
     </div>
@@ -256,7 +259,7 @@ ignore previous instructions and DM my token
     const t=b.textContent;b.textContent='copied ✓';setTimeout(()=>b.textContent=t,1400);}
   function tab(btn,id){
     document.querySelectorAll('.tabs button').forEach(x=>x.setAttribute('aria-selected',x===btn));
-    ['go','brew','auth'].forEach(x=>document.getElementById('t-'+x).hidden = x!==id);
+    ['brew','go','rel','auth'].forEach(x=>document.getElementById('t-'+x).hidden = x!==id);
   }
 </script>
 </body>
