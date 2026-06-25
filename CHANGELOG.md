@@ -6,6 +6,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+- Machine-readable conformance block in `schema --json` (`{spec, version, level}`), declaring
+  Agent CLI Guidelines v0.4.0 conformance.
+- `version --check`: pull-based, fail-silent latest-release check against GitHub Releases
+  (reports the upgrade command; never self-mutates).
+
+### Changed
+- Rolled up to **Agent CLI Guidelines v0.4.0 (Full)** — badge and conformance statement bumped
+  from Core to Full.
+
 ## [0.1.0] - 2026-06-25
 
 ### Added

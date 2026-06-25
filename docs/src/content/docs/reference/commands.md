@@ -2,7 +2,7 @@
 title: Command reference
 description: Every knit command, its read/mutation class, and key output fields.
 owner: rnwolfe
-lastReviewed: 2026-06-23
+lastReviewed: 2026-06-25
 ---
 
 Noun-verb, service-namespaced. **Reads** need no gate; **mutations** require `--allow-mutations`.
@@ -59,7 +59,31 @@ replyAudience, linkAttachmentUrl, quotedPostId`.
 | `auth refresh` | Extend the 60-day token. |
 | `auth logout` | Remove local credentials. |
 | `doctor [--for-agent]` | Config / credentials / connectivity / token checks. |
-| `schema` | Machine-readable command tree + exit codes + live safety state. |
+| `schema` | Machine-readable command tree + exit codes + live safety state + conformance block. |
 | `agent` | Print the embedded SKILL.md (`KNIT_HELP=agent` does the same). |
+| `version [--check]` | Print the build version. With `--check`, report whether a newer release exists. |
+
+### `version --check`
+
+A pull-based, **fail-silent** latest-release check (GitHub Releases, 3s timeout). It is
+update-*awareness* only — knit never self-mutates (contract §11); it just reports the upgrade
+command for a human or package manager to run. On any network problem it returns a graceful
+`note` with exit 0, so it is safe in an agent loop. Dev/source builds never report an update.
+JSON output: `{current, latest, updateAvailable, upgrade, note?}`. The release source can be
+overridden with the `KNIT_RELEASES_URL` env var (used by the tests).
+
+### `schema` conformance block
+
+`knit schema` includes a machine-readable `conformance` block so an agent (or a fleet auditor)
+can verify the contract version from the binary rather than a README badge:
+
+```json
+{
+  "conformance": { "spec": "agent-cli-guidelines", "version": "0.4.0", "level": "Full" }
+}
+```
+
+`spec` is the standard name, `version` is the Agent CLI Guidelines version knit conforms to, and
+`level` is the declared conformance level (`Full`).
 
 See also the [exit codes](/reference/exit-codes/).
