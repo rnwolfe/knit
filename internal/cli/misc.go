@@ -1,6 +1,8 @@
 package cli
 
 import (
+	"context"
+
 	"github.com/alecthomas/kong"
 
 	"github.com/rnwolfe/knit/internal/errs"
@@ -20,8 +22,11 @@ func (c *SchemaCmd) Run(rt *Runtime) error {
 		return errs.New(errs.ExitGeneric, "SCHEMA_ERROR", err.Error(), "")
 	}
 	out := map[string]any{
-		"tool":       "knit",
-		"version":    version.String(),
+		"tool":    "knit",
+		"version": version.String(),
+		"conformance": map[string]any{
+			"spec": "agent-cli-guidelines", "version": version.Spec, "level": "Full",
+		},
 		"commands":   nodeToMap(k.Model.Node),
 		"exit_codes": errs.Table(),
 		"safety": map[string]any{
@@ -83,8 +88,30 @@ func (c *AgentCmd) Run(rt *Runtime) error {
 
 // --- version ----------------------------------------------------------------
 
-type VersionCmd struct{}
+// VersionCmd prints the version, or with --check asks (pull-based, fail-silent) whether a
+// newer release exists. Update awareness, never self-mutation (contract §11). The tool never
+// auto-updates; it only reports the upgrade command for the human/package manager.
+
+type VersionCmd struct {
+	Check bool `help:"Check for a newer release (network, short timeout, fail-silent)."`
+}
 
 func (c *VersionCmd) Run(rt *Runtime) error {
-	return rt.Out.Emit(map[string]any{"version": version.String()})
+	cur := version.String()
+	if !c.Check {
+		return rt.Out.Emit(map[string]any{"version": cur})
+	}
+	out := map[string]any{
+		"current":         cur,
+		"latest":          nil,
+		"updateAvailable": false,
+		"upgrade":         version.UpgradeHint(),
+	}
+	if latest, err := version.Latest(context.Background()); err == nil && latest != "" {
+		out["latest"] = latest
+		out["updateAvailable"] = version.UpdateAvailable(latest, cur)
+	} else {
+		out["note"] = "could not check for updates"
+	}
+	return rt.Out.Emit(out)
 }
