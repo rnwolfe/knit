@@ -6,6 +6,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.1.0] - 2026-06-25
+
 ### Added
 - Initial release: agent-friendly CLI for Instagram's Threads (official Threads API).
 - Read commands: `profile get`, `post list/get`, `reply list/tree`, `search posts`,
