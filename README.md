@@ -11,6 +11,9 @@ posting gated *in the binary*, prompt-injection-fenced, machine-readable.
 [![Release](https://img.shields.io/github/v/release/rnwolfe/knit?sort=semver)](https://github.com/rnwolfe/knit/releases)
 [![Go Reference](https://pkg.go.dev/badge/github.com/rnwolfe/knit.svg)](https://pkg.go.dev/github.com/rnwolfe/knit)
 [![License: MIT](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
+[![Agent CLI Guidelines: Core](https://aclig.dev/badge/agent-cli-guidelines-core.svg)](https://aclig.dev/conformance/)
+
+Conforms to **[Agent CLI Guidelines](https://aclig.dev) v0.3.0 (Core)**.
 
 <a href="https://knit-rho.vercel.app"><b>Landing</b></a> · <a href="https://knit-docs-phi.vercel.app"><b>Docs</b></a>
 <sub>(custom domain <code>knitcli.sh</code> coming soon)</sub>
@@ -40,12 +43,18 @@ Plenty of Threads CLIs exist. None is built for an autonomous agent to drive saf
 ## Install
 
 ```bash
-go install github.com/rnwolfe/knit/cmd/knit@latest   # best for agents (one line, pinnable)
-brew install rnwolfe/tap/knit                        # best for humans
+go install github.com/rnwolfe/knit/cmd/knit@main     # from source (pre-release)
 ```
 
-Or grab a signed binary from [Releases](https://github.com/rnwolfe/knit/releases) (linux ·
-macOS · windows, amd64 · arm64).
+> **Pre-release.** Tagged installs — `go install …@latest`, `brew install rnwolfe/tap/knit`, and
+> signed [Releases](https://github.com/rnwolfe/knit/releases) binaries — land with **v0.1.0**
+> (coming soon).
+
+<!-- After v0.1.0 ships, restore the tagged install block:
+go install github.com/rnwolfe/knit/cmd/knit@latest   # best for agents (one line, pinnable)
+brew install rnwolfe/tap/knit                        # best for humans
+Or grab a signed binary from Releases (linux · macOS · windows, amd64 · arm64).
+-->
 
 ## Quickstart
 
